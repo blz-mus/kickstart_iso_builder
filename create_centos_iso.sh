@@ -3,6 +3,7 @@
 
 # Edited By : BOULOUZA Moustafa 
 #
+#
 # This script is tested on Ubuntu 20.04.1 LTS to create a bootable Centos 7.9 image
 # This script helps you to create a custom Centos 7.9 iso ( Minimal ) that automates installation with kickstart
 # adapte your working directory ($Working_dir) and the folder when you want to store your final ISO ($Iso_dst)
