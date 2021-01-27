@@ -48,6 +48,7 @@ function prepare_working_env() {
         echo -e "curl is not installed. Installation starts now ... \n"
         apt-get install curl
     fi
+    # check if the ISO exists in the working_dir 
     if [ ! -e $Working_dir/$Iso_name ]; then
         echo -e "No local copy of $Iso_name. Downloading latest $Iso_name ... \n"
         curl -o $Working_dir/$Iso_name $Iso_url/$Iso_name 
