@@ -1,5 +1,6 @@
 #!/bin/bash
-
+set -e
+set -o pipefail
 
 # Edited By : BOULOUZA Moustafa 
 #
@@ -11,10 +12,10 @@
 # put your kickstart.cfg in kickstart folder ans don't forget to change the ($KS) variable.
 #
 
-Working_dir="/tmp/" 
+Working_dir="/tmp" 
+Iso_dst="/tmp"
 Mount_dir="cd_mount"
-Iso_dir="Iso_dir"
-Iso_dst="/media/mus/disk_300/iso"
+Iso_dir="iso_dir"
 Iso_label="CentOS-7-x86_64"
 Iso_url="http://miroir.univ-paris13.fr/centos/7.9.2009/isos/x86_64/"
 Iso_name="CentOS-7-x86_64-Minimal-2009.iso"
@@ -26,38 +27,44 @@ function prepare_working_env() {
 
     if [ ! -d $Working_dir/$Mount_dir ]; then
         mkdir -p $Working_dir/$Mount_dir
-        echo -e "$Working_dir/$Mount_dir is created ... \n"
+        echo -e "\n $Working_dir/$Mount_dir is created ... \n"
     fi
     if [ ! -d $Working_dir/$Iso_dir ]; then
         mkdir -p $Working_dir/$Iso_dir
-        echo -e "$Working_dir/$Iso_dir is created ... \n"
+        echo -e "\n $Working_dir/$Iso_dir is created ... \n"
     fi
     if [ ! -d $Iso_dst ]; then
         mkdir -p $Iso_dst
-        echo -e "$Iso_dst is created ... Here you'll find your Customized ISO :-) \n"
+        echo -e "\n $Iso_dst is created ... Here you'll find your Customized ISO :-) \n"
     fi
     if [ ! -d $Working_dir/kickstart ]; then
         mkdir -p $Working_dir/kickstart
-        echo -e "$Working_dir/kickstart is created ... \n"
+        echo -e "\n $Working_dir/kickstart is created ... \n"
     fi
     if [ ! -d $Working_dir/isolinux ]; then
         mkdir -p $Working_dir/isolinux
-        echo -e "$Working_dir/isolinux is created ... \n"
+        echo -e "\n $Working_dir/isolinux is created ... \n"
     fi
     if [ ! -e /usr/bin/curl ]; then
-        echo -e "curl is not installed. Installation starts now ... \n"
+        echo -e "\n curl is not installed. Installation starts now ... \n"
         apt-get install curl
     fi
     # check if the ISO exists in the working_dir 
     if [ ! -e $Working_dir/$Iso_name ]; then
-        echo -e "No local copy of $Iso_name. Downloading latest $Iso_name ... \n"
+        echo -e "\n No local copy of $Iso_name. Downloading latest $Iso_name ... \n"
         curl -o $Working_dir/$Iso_name $Iso_url/$Iso_name 
     fi
 
     cd $Working_dir
 
     ## Mount CD
-    mount -t iso9660 -o loop $Working_dir/$Iso_name $Working_dir/$Mount_dir
+    #if grep -i '$Working_dir/$Mount_dir' /proc/mounts; then
+    if findmnt --mountpoint $Working_dir/$Mount_dir -rn; then
+        echo "\n The ISO is Mounted on $Working_dir/$Mount_dir \n"
+    else 
+        echo "\n Mounting ISO on $Working_dir/$Mount_dir ... \n"
+        mount -t iso9660 -o loop $Working_dir/$Iso_name $Working_dir/$Mount_dir
+    fi
 }
 
 function clean_working_env() {
@@ -66,11 +73,12 @@ function clean_working_env() {
 
     if [ -d $Working_dir/$Mount_dir ]; then
         rm -rf $Working_dir/$Mount_dir
-        echo -e "$Working_dir/$Mount_dir is deleted ... \n"
+        echo -e "\n $Working_dir/$Mount_dir is deleted ... \n"
     fi
+
     if [ -d $Working_dir/$Iso_dir ]; then
         rm -rf $Working_dir/$Iso_dir
-        echo -e "$Working_dir/$Iso_dir is deleted ... \n"
+        echo -e "\n $Working_dir/$Iso_dir is deleted ... \n"
     fi
     #if [ -d $Working_dir/kickstart ]; then
     #    rm -rf $Working_dir/kickstart
@@ -84,12 +92,17 @@ function clean_working_env() {
 }
 
 function modify_boot_menu() {
-    echo "Modifying boot menu ..."
+    echo "\n Modifying boot menu ...."
     #cp config/isolinux.cfg $DVD_LAYOUT/isolinux/
-    cp $Working_dir/isolinux/isolinux.cfg $Working_dir/$Iso_dir/isolinux/isolinux.cfg
-    sed -i "s/menu label.*/menu title Install CentOS 7 with kickstart/g" $Working_dir/$Iso_dir/isolinux/isolinux.cfg
-    sed -i "s/append.* /append initrd=initrd.img inst.stage2=hd:LABEL=$Iso_label inst.ks=cdrom:\/$KS quiet/g" $Working_dir/$Iso_dir/isolinux/isolinux.cfg
-    
+
+    if [ ! -e $Working_dir/isolinux/isolinux.cfg ]; then
+        echo -e "\n The isolinux.cfg will be downloaded to $Working_dir/isolinux folder \n"
+        curl https://raw.githubusercontent.com/blz-mus/create_centos_iso/main/isolinux/isolinux.cfg -o $Working_dir/isolinux/isolinux.cfg
+    fi
+        cp $Working_dir/isolinux/isolinux.cfg $Working_dir/$Iso_dir/isolinux/isolinux.cfg
+        sed -i "s/menu label.*/menu title Install CentOS 7 with kickstart/g" $Working_dir/$Iso_dir/isolinux/isolinux.cfg
+        sed -i "s/append.* /append initrd=initrd.img inst.stage2=hd:LABEL=$Iso_label inst.ks=cdrom:\/$KS quiet/g" $Working_dir/$Iso_dir/isolinux/isolinux.cfg
+     
 }
 
 function create_iso(){
@@ -101,9 +114,13 @@ function create_iso(){
     ## COPY CD Content
     cp -pRf $Working_dir/$Mount_dir/* $Working_dir/$Iso_dir
 
-    ## COPY Kickstart && isolinux.cfg
-    cp $Working_dir/kickstart/* $Working_dir/$Iso_dir/
-    
+    ## COPY Kickstart 
+    if [ ! -e $Working_dir/kickstart/$KS ]; then
+        echo -e "\n Please put your $KS file in $Working_dir/kickstart/ folder"
+    else
+        cp $Working_dir/kickstart/* $Working_dir/$Iso_dir/
+    fi 
+
     modify_boot_menu
     
     cd $Working_dir/$Iso_dir
