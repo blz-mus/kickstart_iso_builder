@@ -49,7 +49,7 @@ function prepare_working_env() {
         echo -e "\n curl is not installed. Installation starts now ... \n"
         apt-get install curl
     fi
-    # check if the ISO exists in the working_dir 
+    # Download the ISO if it doens't exist in the working_dir 
     if [ ! -e $Working_dir/$Iso_name ]; then
         echo -e "\n No local copy of $Iso_name. Downloading latest $Iso_name ... \n"
         curl -o $Working_dir/$Iso_name $Iso_url/$Iso_name 
@@ -57,8 +57,7 @@ function prepare_working_env() {
 
     cd $Working_dir
 
-    ## Mount CD
-    #if grep -i '$Working_dir/$Mount_dir' /proc/mounts; then
+    ## Mount CD if it doesn't
     if findmnt --mountpoint $Working_dir/$Mount_dir -rn; then
         echo "\n The ISO is Mounted on $Working_dir/$Mount_dir \n"
     else 
@@ -80,6 +79,7 @@ function clean_working_env() {
         rm -rf $Working_dir/$Iso_dir
         echo -e "\n $Working_dir/$Iso_dir is deleted ... \n"
     fi
+    # uncomment this part if you'd like to remove this folders
     #if [ -d $Working_dir/kickstart ]; then
     #    rm -rf $Working_dir/kickstart
     #    echo -e "$Working_dir/kickstart is deleted ... \n"
@@ -141,7 +141,6 @@ function create_iso(){
     -no-emul-boot \
     -x "lost+found" \
     -o $Iso_dst/$Iso_name_CUSTOM .
-    #-o ../../$Iso_name_CUSTOM .
 
     if [ ! -e /usr/bin/implantisomd5 ]; then
         echo "implantisomd5 is not installed. Installation starts now ..."
@@ -218,54 +217,6 @@ case "$subcommand" in
         ;;
 esac
 
-
-
-#mkdir -p $Working_dir/{$Mount_dir,$Iso_dir}
-
-#sudo umount $Mount_dir
-
-#mkisofs -R -J -T -v -no-emul-boot \
-#mkisofs -R -J -T -v -cache-inodes -no-emul-boot \
-#    -boot-load-size 4 \
-#    -boot-info-table \
-#    -V "Centos 7.9 Custom" \
-#    -p "Centos 7.9 Custom" \
-#    -A "Centos 7.9 Custom" \
-#    -b $Iso_dir/isolinux/isolinux.bin \
-#    -c $Iso_dir/isolinux/boot.cat \
-#    --joliet-long \
-#    -o $Working_dir/centos_custom.iso .
-# #   -x "lost+found" \
-
-#mkisofs -R -J -v -T -no-emul-boot \
-#    -boot-load-size 4 \
-#    -boot-info-table \
-#    -V "CentOS 7 x86_64" \
-#    -b $Iso_dir/isolinux/isolinux.bin \
-#    -c $Iso_dir/isolinux/boot.cat \
-#    -o ../centos_custom.iso .
- 
-#mkisofs -o /tmp/boot.iso -b isolinux.bin -c boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -V "CentOS 7 x86_64" -R -J -v -T isolinux/. .
-
-
-
-#genisoimage -U -r -v -T -J \ 
-#    -joliet-long \
-#    -no-emul-boot \
-#    -boot-load-size 4 \
-#    -boot-info-table \
-#    -V "$LABEL" \
-#    -volset "$LABEL" \
-#    -A "$LABEL" \
-#    -b isolinux/isolinux.bin \
-#    -c isolinux/boot.cat \
-#    -eltorito-alt-boot \
-#    -e images/efiboot.img \
-##   -no-emul-boot \
-#    -o ../../centos_custom.iso .
-
-
-#mv centos_custom.iso ../
 
 
 
