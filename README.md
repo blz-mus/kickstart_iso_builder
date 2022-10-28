@@ -10,9 +10,10 @@
 
 ## How to use this script : 
 ```
-   - sudo bash ./kickstart_iso_builder.sh create  :   Create the new ISO image
-   - sudo bash ./kickstart_iso_builder.sh prepare :   Create necessary working folders & download the Minimal Centos ISO if it doesn't exists
-   - sudo bash ./kickstart_iso_builder.sh clean   :   Unmount ISO and Delete working folders $MOUNT_DIR & $ISO_COPY_DIR
+  - sudo bash ./kickstart_iso_builder.sh create    : Create the new ISO image
+  - sudo bash ./kickstart_iso_builder.sh prepare   : Create necessary working folders & download the Minimal Centos ISO if it doesn't exists
+  - sudo bash ./kickstart_iso_builder.sh clean     : Unmount ISO and Delete working folders $MOUNT_DIR & $ISO_COPY_DIR. 
+                                                     This is usefull when you want to create another image.
 
-   - ./create_centos_iso.sh -h | --help | help :   Show help
+  - ./create_centos_iso.sh -h | --help | help :   Show help
 ```
