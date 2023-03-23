@@ -18,7 +18,7 @@
    - sudo bash ./kickstart_iso_builder.sh create  :   Create the new ISO image
    - sudo bash ./kickstart_iso_builder.sh prepare :   Create necessary working folders & download the Minimal Centos ISO if it doesn't exists
    - sudo bash ./kickstart_iso_builder.sh clean   :   Unmount ISO and Delete working folders $MOUNT_DIR & $ISO_COPY_DIR
-   - sudo bash ./create_centos_iso.sh -h | --help | help :   Show help
+   - sudo bash ./kickstart_iso_builder.sh -h | --help | help :   Show help
 ```
 
 # 3. *Kickstart files* 
