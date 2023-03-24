@@ -23,6 +23,6 @@
 
 # 3. *Kickstart files* 
 
-- *kickstart_RHEL8.cfg* : install RHEL8 on KVM Guest**
+- *kickstart_RHEL8.cfg* : install RHEL8 on KVM Guest
 - *kickstart_RHEL7.cfg* : install RHEL7 on KVM Guest
 - *kickstart_RHEL7_UCS_C220.cfg* : install RHEL7 on Cisco UCS C220 M5
